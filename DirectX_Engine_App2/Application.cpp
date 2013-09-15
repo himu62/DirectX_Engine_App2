@@ -1,15 +1,15 @@
 /******************************************************************************
 *	Project	: DirectX_Engine_App2
-*	Version	: Core_0.0.0
+*	Version	: 0.0.0
 *	File	: Application.cpp
 *	Author	: himu62
 ******************************************************************************/
 
-#include "Application.hpp"
-
 #include <cassert>
-#include <stdexcept>
 #include <sstream>
+#include <stdexcept>
+
+#include "Application.hpp"
 
 /******************************************************************************
 	Initialize
@@ -23,7 +23,7 @@ HWND InitWindow(const std::wstring &caption, const int width, const int height)
 	const std::wstring class_name = L"Engine Test Application";
 
 	WNDCLASSEX window_class;
-	window_class.cbSize			= sizeof(WNDCLASSEX);
+	window_class.cbSize			= sizeof(window_class);
 	window_class.style			= CS_VREDRAW | CS_HREDRAW;
 	window_class.lpfnWndProc	= DefWindowProc;
 	window_class.cbClsExtra		= 0;
@@ -51,7 +51,7 @@ HWND InitWindow(const std::wstring &caption, const int width, const int height)
 		caption.c_str(),
 		style,
 		CW_USEDEFAULT, CW_USEDEFAULT,
-		width, height,
+		rc.right - rc.left, rc.bottom - rc.top,
 		nullptr,
 		nullptr,
 		hInstance,
@@ -91,7 +91,8 @@ Application::Application(
 	) try :
 	m_WindowHandle(InitWindow(caption, width, height)),
 	m_Initter(),
-	m_GraphicDevice(new GraphicDevice(m_WindowHandle))
+	m_GraphicDevice(new GraphicDevice(m_WindowHandle)),
+	m_SoundDevice(new SoundDevice())
 {
 	SetWindowSubclass(m_WindowHandle, SubclassProcedure, reinterpret_cast<UINT_PTR>(this), 0);
 
@@ -121,18 +122,18 @@ void intrusive_ptr_release(Application *ptr)
 
 int Application::AddRef()
 {
-	return ++ref_count;
+	return ++m_RefCount;
 }
 
 int Application::Release()
 {
-	if(--ref_count == 0)
+	if(--m_RefCount == 0)
 	{
 		delete this;
 		return 0;
 	}
 
-	return ref_count;
+	return m_RefCount;
 }
 
 //*****************************************************************************

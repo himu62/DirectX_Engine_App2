@@ -1,15 +1,15 @@
 /******************************************************************************
 *	Project	: DirectX_Engine_App2
-*	Version	: Core_0.0.0
+*	Version	: 0.0.0
 *	File	: GraphicDevice.cpp
 *	Author	: himu62
 ******************************************************************************/
 
-#include "GraphicDevice.hpp"
-
 #include <cassert>
-#include <stdexcept>
 #include <sstream>
+#include <stdexcept>
+
+#include "GraphicDevice.hpp"
 
 /******************************************************************************
 	Initialize
@@ -241,7 +241,7 @@ catch(std::runtime_error const &e)
 	std::wstringstream ss(L"");
 	ss << e.what();
 
-	MessageBox(NULL, ss.str().c_str(), L"ERROR", MB_ICONERROR | MB_OK);
+	MessageBox(nullptr, ss.str().c_str(), L"Error", MB_ICONERROR | MB_OK);
 
 	exit(-1);
 }

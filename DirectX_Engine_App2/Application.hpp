@@ -1,6 +1,6 @@
 /******************************************************************************
 *	Project	: DirectX_Engine_App2
-*	Version	: Core_0.0.0
+*	Version	: 0.0.0
 *	File	: Application.hpp
 *	Author	: himu62
 ******************************************************************************/
@@ -25,6 +25,7 @@
 #include <boost/intrusive_ptr.hpp>
 
 #include "GraphicDevice.hpp"
+#include "SoundDevice.hpp"
 
 #pragma comment(lib, "Comctl32.lib")
 
@@ -67,7 +68,7 @@ private:
 		DWORD_PTR
 		);
 
-	int ref_count;
+	int m_RefCount;
 
 	const HWND m_WindowHandle;
 
@@ -75,4 +76,5 @@ protected:
 	CoInitter m_Initter;
 
 	std::unique_ptr<GraphicDevice> m_GraphicDevice;
+	std::unique_ptr<SoundDevice> m_SoundDevice;
 };
