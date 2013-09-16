@@ -6,9 +6,9 @@
 ******************************************************************************/
 #pragma once
 
-// Windows 7 à»ç~
-#define WINVER 0x0700
-#define _WIN32_WINNT 0x0700
+// Windows Vista à»ç~
+#define _WIN32_WINNT	0x0600
+#define WINVER			0x0600
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -27,7 +27,7 @@
 #include "GraphicDevice.hpp"
 #include "SoundDevice.hpp"
 
-#pragma comment(lib, "Comctl32.lib")
+#pragma comment(lib, "ComCtl32.lib")
 
 /******************************************************************************
 	CoInitter ÉNÉâÉX
