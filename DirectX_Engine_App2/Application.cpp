@@ -19,7 +19,6 @@
 // Window Handle
 HWND InitWindow(const std::wstring &caption, const int width, const int height)
 {
-	const HINSTANCE hInstance = ::GetModuleHandle(NULL);
 	const std::wstring class_name = L"Engine Test Application";
 
 	WNDCLASSEX window_class;
@@ -28,15 +27,15 @@ HWND InitWindow(const std::wstring &caption, const int width, const int height)
 	window_class.lpfnWndProc	= ::DefWindowProc;
 	window_class.cbClsExtra		= 0;
 	window_class.cbWndExtra		= 0;
-	window_class.hInstance		= hInstance;
+	window_class.hInstance		= ::GetModuleHandle(nullptr);
 	window_class.hIcon			= ::LoadIcon(nullptr, IDI_APPLICATION);
 	window_class.hCursor		= ::LoadCursor(nullptr, IDC_ARROW);
-	window_class.hbrBackground	= static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH));
+	window_class.hbrBackground	= nullptr;
 	window_class.lpszMenuName	= nullptr;
 	window_class.lpszClassName	= class_name.c_str();
 	window_class.hIconSm		= ::LoadIcon(nullptr, IDI_APPLICATION);
 
-	if(!::RegisterClassEx(&window_class))
+	if(!(::RegisterClassEx(&window_class)))
 	{
 		throw std::runtime_error("Failed to register a window class");
 	}
@@ -54,15 +53,13 @@ HWND InitWindow(const std::wstring &caption, const int width, const int height)
 		rc.right - rc.left, rc.bottom - rc.top,
 		nullptr,
 		nullptr,
-		hInstance,
+		::GetModuleHandle(nullptr),
 		nullptr
 		);
 	if(!window_handle)
 	{
 		throw std::runtime_error("Failed to create a window");
 	}
-
-	::SetTimer(window_handle, 0, 16, nullptr);
 
 	return window_handle;
 }
@@ -100,6 +97,7 @@ Application::Application(
 	m_SoundDevice(new SoundDevice())
 {
 	::SetWindowSubclass(m_WindowHandle, SubclassProcedure, reinterpret_cast<UINT_PTR>(this), 0);
+	::SetTimer(m_WindowHandle, 0, 16, nullptr);
 
 	::ShowWindow(m_WindowHandle, SW_SHOW);
 }
@@ -111,34 +109,6 @@ catch(const std::runtime_error &e)
 	::MessageBox(nullptr, ss.str().c_str(), L"Error", MB_ICONERROR | MB_OK);
 
 	exit(-1);
-}
-
-//*****************************************************************************
-// boost::intrusive_ptr counter control
-void intrusive_ptr_add_ref(Application *ptr)
-{
-	ptr->AddRef();
-}
-
-void intrusive_ptr_release(Application *ptr)
-{
-	ptr->Release();
-}
-
-int Application::AddRef()
-{
-	return ++m_RefCount;
-}
-
-int Application::Release()
-{
-	if(--m_RefCount == 0)
-	{
-		delete this;
-		return 0;
-	}
-
-	return m_RefCount;
 }
 
 //*****************************************************************************
@@ -185,8 +155,8 @@ LRESULT CALLBACK Application::SubclassProcedure(
 	DWORD_PTR
 	)
 {
-	boost::intrusive_ptr<Application> app(reinterpret_cast<Application*>(this_ptr));
-	assert(app.get());
+	Application* app = reinterpret_cast<Application*>(this_ptr);
+	assert(app);
 
 	switch(message)
 	{
