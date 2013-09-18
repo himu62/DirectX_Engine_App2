@@ -102,7 +102,7 @@ ComPtr<IDXGISwapChain> InitSwapChain(
 	adapter->GetParent(__uuidof(IDXGIFactory), static_cast<void**>(&dxgi_factory));
 
 	RECT rc;
-	GetClientRect(window_handle, &rc);
+	::GetClientRect(window_handle, &rc);
 
 	DXGI_SWAP_CHAIN_DESC sc_desc;
 	sc_desc.BufferDesc.Width					= rc.right - rc.left;

@@ -19,24 +19,24 @@
 // Window Handle
 HWND InitWindow(const std::wstring &caption, const int width, const int height)
 {
-	const HINSTANCE hInstance = GetModuleHandle(NULL);
+	const HINSTANCE hInstance = ::GetModuleHandle(NULL);
 	const std::wstring class_name = L"Engine Test Application";
 
 	WNDCLASSEX window_class;
 	window_class.cbSize			= sizeof(window_class);
 	window_class.style			= CS_VREDRAW | CS_HREDRAW;
-	window_class.lpfnWndProc	= DefWindowProc;
+	window_class.lpfnWndProc	= ::DefWindowProc;
 	window_class.cbClsExtra		= 0;
 	window_class.cbWndExtra		= 0;
 	window_class.hInstance		= hInstance;
-	window_class.hIcon			= LoadIcon(nullptr, IDI_APPLICATION);
-	window_class.hCursor		= LoadCursor(nullptr, IDC_ARROW);
+	window_class.hIcon			= ::LoadIcon(nullptr, IDI_APPLICATION);
+	window_class.hCursor		= ::LoadCursor(nullptr, IDC_ARROW);
 	window_class.hbrBackground	= static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH));
 	window_class.lpszMenuName	= nullptr;
 	window_class.lpszClassName	= class_name.c_str();
-	window_class.hIconSm		= LoadIcon(nullptr, IDI_APPLICATION);
+	window_class.hIconSm		= ::LoadIcon(nullptr, IDI_APPLICATION);
 
-	if(!RegisterClassEx(&window_class))
+	if(!::RegisterClassEx(&window_class))
 	{
 		throw std::runtime_error("Failed to register a window class");
 	}
@@ -44,9 +44,9 @@ HWND InitWindow(const std::wstring &caption, const int width, const int height)
 	RECT rc = {0, 0, width, height};
 	const DWORD style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
 
-	AdjustWindowRect(&rc, style, false);
+	::AdjustWindowRect(&rc, style, false);
 
-	const HWND window_handle = CreateWindow(
+	const HWND window_handle = ::CreateWindow(
 		class_name.c_str(),
 		caption.c_str(),
 		style,
@@ -61,6 +61,8 @@ HWND InitWindow(const std::wstring &caption, const int width, const int height)
 	{
 		throw std::runtime_error("Failed to create a window");
 	}
+
+	::SetTimer(window_handle, 0, 16, nullptr);
 
 	return window_handle;
 }
@@ -87,23 +89,26 @@ CoInitter::~CoInitter()
 ******************************************************************************/
 
 Application::Application(
-	const std::wstring &caption, const int width, const int height, const bool windowed
+	const std::wstring &caption,
+	const int width,
+	const int height,
+	const bool windowed
 	) try :
 	m_WindowHandle(InitWindow(caption, width, height)),
 	m_Initter(),
 	m_GraphicDevice(new GraphicDevice(m_WindowHandle)),
 	m_SoundDevice(new SoundDevice())
 {
-	SetWindowSubclass(m_WindowHandle, SubclassProcedure, reinterpret_cast<UINT_PTR>(this), 0);
+	::SetWindowSubclass(m_WindowHandle, SubclassProcedure, reinterpret_cast<UINT_PTR>(this), 0);
 
-	ShowWindow(m_WindowHandle, SW_RESTORE);
+	::ShowWindow(m_WindowHandle, SW_SHOW);
 }
 catch(const std::runtime_error &e)
 {
 	std::wstringstream ss(L"");
 	ss << e.what();
 
-	MessageBox(nullptr, ss.str().c_str(), L"Error", MB_ICONERROR | MB_OK);
+	::MessageBox(nullptr, ss.str().c_str(), L"Error", MB_ICONERROR | MB_OK);
 
 	exit(-1);
 }
@@ -142,13 +147,13 @@ int Application::Run()
 {
 	MSG message;
 
-	while(GetMessage(&message, nullptr, 0, 0))
+	while(::GetMessage(&message, nullptr, 0, 0))
 	{
-		TranslateMessage(&message);
-		DispatchMessage(&message);
+		::TranslateMessage(&message);
+		::DispatchMessage(&message);
 	}
 
-	PostQuitMessage(0);
+	::PostQuitMessage(0);
 
 	return static_cast<int>(message.wParam);
 }
@@ -157,7 +162,7 @@ int Application::Run()
 // Exit
 void Application::Exit()
 {
-	PostQuitMessage(0);
+	::PostQuitMessage(0);
 }
 
 //*****************************************************************************
@@ -185,20 +190,24 @@ LRESULT CALLBACK Application::SubclassProcedure(
 
 	switch(message)
 	{
-	case WM_PAINT:
+	case WM_TIMER:
 	case WM_DISPLAYCHANGE:
+		::InvalidateRect(window_handle, nullptr, false);
+		break;
+
+	case WM_PAINT:
 		PAINTSTRUCT ps;
-		BeginPaint(window_handle, &ps);
+		::BeginPaint(window_handle, &ps);
 		app->Update();
-		EndPaint(window_handle, &ps);
+		::EndPaint(window_handle, &ps);
 		break;
 
 	case WM_DESTROY:
-		PostQuitMessage(0);
+		::PostQuitMessage(0);
 		return 1;
 
 	default:
-		return DefSubclassProc(window_handle, message, wp, lp);
+		return ::DefSubclassProc(window_handle, message, wp, lp);
 	}
 
 	return 0;

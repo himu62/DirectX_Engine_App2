@@ -47,7 +47,10 @@ class Application : private boost::noncopyable
 {
 public:
 	explicit Application(
-		const std::wstring &caption, const int width, const int height, const bool windowed
+		const std::wstring &caption,
+		const int width,
+		const int height,
+		const bool windowed
 		);
 
 	int AddRef();
