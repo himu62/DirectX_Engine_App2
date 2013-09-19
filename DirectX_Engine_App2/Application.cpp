@@ -1,8 +1,8 @@
 /******************************************************************************
-*	Project	: DirectX_Engine_App2
-*	Version	: 0.0.0
-*	File	: Application.cpp
-*	Author	: himu62
+	Project	: Direct3D11 Sample
+	Version	: 0.0.0
+	File	: Application.cpp
+	Author	: himu62
 ******************************************************************************/
 
 #include <cassert>
@@ -19,10 +19,10 @@
 // Window Handle
 HWND InitWindow(const std::wstring &caption, const int width, const int height)
 {
-	const std::wstring class_name = L"Engine Test Application";
+	const std::wstring cls_name = L"DirectX Engine Application 2";
 
 	WNDCLASSEX window_class;
-	window_class.cbSize			= sizeof(window_class);
+	window_class.cbSize			= sizeof(WNDCLASSEX);
 	window_class.style			= CS_VREDRAW | CS_HREDRAW;
 	window_class.lpfnWndProc	= ::DefWindowProc;
 	window_class.cbClsExtra		= 0;
@@ -32,34 +32,37 @@ HWND InitWindow(const std::wstring &caption, const int width, const int height)
 	window_class.hCursor		= ::LoadCursor(nullptr, IDC_ARROW);
 	window_class.hbrBackground	= nullptr;
 	window_class.lpszMenuName	= nullptr;
-	window_class.lpszClassName	= class_name.c_str();
+	window_class.lpszClassName	= cls_name.c_str();
 	window_class.hIconSm		= ::LoadIcon(nullptr, IDI_APPLICATION);
 
 	if(!(::RegisterClassEx(&window_class)))
 	{
-		throw std::runtime_error("Failed to register a window class");
+		throw runtime_error("Failed to register a window class");
 	}
 
-	RECT rc = {0, 0, width, height};
+	RECT rect = {0, 0, width, height};
 	const DWORD style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
 
-	::AdjustWindowRect(&rc, style, false);
+	::AdjustWindowRect(&rect, style, false);
 
-	const HWND window_handle = ::CreateWindow(
-		class_name.c_str(),
+	const HWND window_handle = CreateWindow(
+		cls_name.c_str(),
 		caption.c_str(),
 		style,
 		CW_USEDEFAULT, CW_USEDEFAULT,
-		rc.right - rc.left, rc.bottom - rc.top,
+		rect.right - rect.left, rect.bottom - rect.top,
 		nullptr,
 		nullptr,
-		::GetModuleHandle(nullptr),
+		GetModuleHandle(nullptr),
 		nullptr
 		);
+
 	if(!window_handle)
 	{
-		throw std::runtime_error("Failed to create a window");
+		throw runtime_error("Failed to create a window");
 	}
+
+	::SetTimer(window_handle, 0, 16, nullptr);
 
 	return window_handle;
 }
@@ -70,10 +73,7 @@ HWND InitWindow(const std::wstring &caption, const int width, const int height)
 
 CoInitter::CoInitter()
 {
-	if(::CoInitializeEx(nullptr, COINIT_MULTITHREADED))
-	{
-		throw std::runtime_error("Failed to initialize COM");
-	}
+	::CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 }
 
 CoInitter::~CoInitter()
@@ -96,19 +96,24 @@ Application::Application(
 	m_GraphicDevice(new GraphicDevice(m_WindowHandle)),
 	m_SoundDevice(new SoundDevice())
 {
-	::SetWindowSubclass(m_WindowHandle, SubclassProcedure, reinterpret_cast<UINT_PTR>(this), 0);
-	::SetTimer(m_WindowHandle, 0, 16, nullptr);
+	::SetWindowSubclass(
+		m_WindowHandle,
+		SubclassProcedure,
+		reinterpret_cast<UINT_PTR>(this),
+		0
+		);
 
+	::UpdateWindow(m_WindowHandle);
 	::ShowWindow(m_WindowHandle, SW_SHOW);
 }
-catch(const std::runtime_error &e)
+catch(const runtime_error &e)
 {
 	std::wstringstream ss(L"");
 	ss << e.what();
 
 	::MessageBox(nullptr, ss.str().c_str(), L"Error", MB_ICONERROR | MB_OK);
 
-	exit(-1);
+	::exit(-1);
 }
 
 //*****************************************************************************
@@ -123,16 +128,9 @@ int Application::Run()
 		::DispatchMessage(&message);
 	}
 
-	::PostQuitMessage(0);
+	PostQuitMessage(0);
 
 	return static_cast<int>(message.wParam);
-}
-
-//*****************************************************************************
-// Exit
-void Application::Exit()
-{
-	::PostQuitMessage(0);
 }
 
 //*****************************************************************************
@@ -149,8 +147,8 @@ void Application::Update()
 LRESULT CALLBACK Application::SubclassProcedure(
 	const HWND window_handle,
 	const UINT message,
-	const WPARAM wp,
-	const LPARAM lp,
+	const WPARAM wprm,
+	const LPARAM lprm,
 	const UINT_PTR this_ptr,
 	DWORD_PTR
 	)
@@ -160,8 +158,11 @@ LRESULT CALLBACK Application::SubclassProcedure(
 
 	switch(message)
 	{
-	case WM_TIMER:
+	case WM_SIZE:
+		break;
+
 	case WM_DISPLAYCHANGE:
+	case WM_TIMER:
 		::InvalidateRect(window_handle, nullptr, false);
 		break;
 
@@ -177,7 +178,7 @@ LRESULT CALLBACK Application::SubclassProcedure(
 		return 1;
 
 	default:
-		return ::DefSubclassProc(window_handle, message, wp, lp);
+		return ::DefSubclassProc(window_handle, message, wprm, lprm);
 	}
 
 	return 0;
