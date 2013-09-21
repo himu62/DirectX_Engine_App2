@@ -17,6 +17,8 @@
 
 #include <boost/noncopyable.hpp>
 
+#include "Texture.hpp"
+
 using std::runtime_error;
 using namespace D2D1;
 using namespace Microsoft::WRL;
@@ -35,8 +37,11 @@ class GraphicDevice : private boost::noncopyable
 public:
 	explicit GraphicDevice(const HWND window_handle);
 
-	void BeginDraw();
-	void EndDraw();
+	void BeginDraw() const;
+	void EndDraw() const;
+
+	Texture CreateTexture(const std::wstring &file_name) const;
+	void DrawTexture(const Texture &tex) const;
 
 private:	
 	const ComPtr<ID3D11Device> m_d3dDevice;

@@ -184,7 +184,7 @@ catch(std::runtime_error const &e)
 
 //*****************************************************************************
 // Start of rendering
-void GraphicDevice::BeginDraw()
+void GraphicDevice::BeginDraw() const
 {
 	assert(m_SwapChain.Get());
 	assert(m_RenderTarget.Get());
@@ -192,12 +192,12 @@ void GraphicDevice::BeginDraw()
 	m_RenderTarget->BeginDraw();
 
 	m_RenderTarget->SetTransform(Matrix3x2F::Identity());
-	m_RenderTarget->Clear(ColorF(0xffffff));
+	m_RenderTarget->Clear();
 }
 
 //*****************************************************************************
 // End of rendering
-void GraphicDevice::EndDraw()
+void GraphicDevice::EndDraw() const
 {
 	assert(m_SwapChain.Get());
 	assert(m_RenderTarget.Get());
@@ -205,4 +205,35 @@ void GraphicDevice::EndDraw()
 	m_RenderTarget->EndDraw();
 
 	m_SwapChain->Present(1, 0);
+}
+
+//*****************************************************************************
+// Create a texture
+Texture GraphicDevice::CreateTexture(const std::wstring &file_name) const
+{
+	assert(m_RenderTarget.Get());
+	return Texture(TextureKey(m_RenderTarget, file_name));
+}
+
+//*****************************************************************************
+// Draw a texture
+void GraphicDevice::DrawTexture(const Texture &tex) const
+{
+	assert(m_RenderTarget.Get());
+	assert(tex.get().m_Bitmap.Get());
+
+	const D2D1_RECT_F rect = tex.get().GetRect();
+	const D2D1_POINT_2F center = Point2F(
+		(rect.right - rect.left) / 2,
+		(rect.bottom - rect.top) / 2
+		);
+
+	m_RenderTarget->SetTransform(
+		Matrix3x2F::Rotation(tex.get().m_Rotate, center) *
+		Matrix3x2F::Scale(tex.get().m_Scale, center)
+		);
+
+	m_RenderTarget->DrawBitmap(tex.get().m_Bitmap.Get(), rect);
+
+	m_RenderTarget->SetTransform(Matrix3x2F::Identity());
 }
