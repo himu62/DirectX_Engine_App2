@@ -6,6 +6,7 @@
 ******************************************************************************/
 #pragma once
 
+#pragma warning(disable: 4005)
 #include <cassert>
 
 #include <XAudio2.h>

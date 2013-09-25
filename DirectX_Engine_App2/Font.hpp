@@ -6,6 +6,7 @@
 ******************************************************************************/
 #pragma once
 
+#pragma warning(disable: 4005)
 #include <string>
 #include <vector>
 #include <memory>
@@ -16,6 +17,7 @@
 #include <wrl/client.h>
 
 using std::runtime_error;
+using std::vector;
 using namespace D2D1;
 using namespace Microsoft::WRL;
 
@@ -54,8 +56,9 @@ public:
 		const std::wstring &font_name,
 		const float font_size,
 		const char style,
-		const std::vector<uint32_t> colors,
-		const std::vector<float> points
+		const vector<uint32_t> &colors,
+		const vector<float> &positions,
+		const D2D1_LINEAR_GRADIENT_BRUSH_PROPERTIES &props
 		);
 
 	void SetTextColor(const uint32_t color);
@@ -63,9 +66,23 @@ public:
 	void SetShadowColor(const uint32_t color);
 
 	// Gradient version
-	void SetTextColor(const std::vector<uint32_t> colors, const std::vector<float> points);
-	void SetEdgeColor(const std::vector<uint32_t> colors, const std::vector<float> points);
-	//void SetShadowColor(const std::vector<uint32_t> colors, const std::vector<float> points);
+	void SetTextColor(
+		const vector<uint32_t> &colors,
+		const vector<float> &positions,
+		const D2D1_LINEAR_GRADIENT_BRUSH_PROPERTIES &props
+		);
+	void SetEdgeColor(
+		const vector<uint32_t> &colors,
+		const vector<float> &positions,
+		const D2D1_LINEAR_GRADIENT_BRUSH_PROPERTIES &props
+		);
+	/*
+	void SetShadowColor(
+		const vector<uint32_t> &colors,
+		const vector<float> &positions,
+		const D2D1_LINEAR_GRADIENT_BRUSH_PROPERTIES &props
+		);
+	*/
 
 	void Edge(const bool enable);
 	void Shadow(const bool enable);
@@ -77,7 +94,7 @@ public:
 		Virtual functions of IDWriteTextRenderer
 	*****************************************************************************/
 
-    IFACEMETHOD(DrawGlyphRun)(
+	IFACEMETHOD(DrawGlyphRun)(
 		__maybenull void* clientDrawingContext,
 		FLOAT baselineOriginX,
 		FLOAT baselineOriginY,
@@ -134,6 +151,13 @@ public:
 
 private:
 	friend class GraphicDevice;
+
+	ComPtr<ID2D1SolidColorBrush> CreateSolidColorBrush(const uint32_t color);
+	ComPtr<ID2D1LinearGradientBrush> CreateLinearGradientBrush(
+		const vector<uint32_t> &colors,
+		const vector<float> &positions,
+		const D2D1_LINEAR_GRADIENT_BRUSH_PROPERTIES &props
+		);
 
 	unsigned long m_RefCount;
 
