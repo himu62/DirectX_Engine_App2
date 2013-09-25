@@ -14,7 +14,7 @@
 #include <vorbisfile.h>
 
 /******************************************************************************
-	delete
+	deleter
 ******************************************************************************/
 
 struct VoiceDeleter
@@ -36,7 +36,7 @@ struct SourceVoiceDeleter
 	}
 };
 
-struct VorbisDeleter
+struct VorbisFileDeleter
 {
 	void operator()(OggVorbis_File* ptr)
 	{

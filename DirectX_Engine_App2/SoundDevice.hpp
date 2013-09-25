@@ -6,28 +6,7 @@
 ******************************************************************************/
 #pragma once
 
-#pragma warning(disable: 4005)
-#include <memory>
-#include <vector>
-#include <string>
-
-#include <XAudio2.h>
-
-#include <wrl/client.h>
-#include <boost/noncopyable.hpp>
-
-#include "deleter.hpp"
-
-#pragma comment(lib, "xapobase.lib")
-#ifdef _DEBUG
-#pragma comment(lib, "xapobased.lib")
-#endif
-
-using namespace Microsoft::WRL;
-
-typedef std::unique_ptr<IXAudio2MasteringVoice, VoiceDeleter> MasteringVoice;
-typedef std::unique_ptr<IXAudio2SubmixVoice, VoiceDeleter> SubmixVoice;
-typedef std::unique_ptr<IXAudio2SourceVoice, SourceVoiceDeleter> SourceVoice;
+#include "Sound.hpp"
 
 /******************************************************************************
 	SoundDevice
@@ -41,4 +20,17 @@ public:
 private:
 	const ComPtr<IXAudio2> m_XAudio;
 	const MasteringVoice m_MasterVoice;
+};
+
+/******************************************************************************
+	Submixer
+******************************************************************************/
+
+class Submixer : private boost::noncopyable
+{
+public:
+	explicit Submixer(const ComPtr<IXAudio2> xaudio);
+
+private:
+	const SubmixVoice m_SubmixVoice;
 };
