@@ -26,6 +26,15 @@ ComPtr<IDWriteTextFormat> InitTextFormat(
 {
 	assert(dw_factory.Get());
 
+	/*
+	Enumerate installed fonts
+	if the font is not found, add the font data to the system from the archive
+
+	vector<uint8_t> font_data = ReadFile((font_name + ".ttf").c_str());
+	DWORD font_num = 0;
+	AddFontMemResourceEx(&font_data.front(), font_data.size(), NULL, &font_num);
+	*/
+
 	ComPtr<IDWriteTextFormat> format(nullptr);
 	if(FAILED(dw_factory->CreateTextFormat(
 		font_name.c_str(),
@@ -193,6 +202,9 @@ IFACEMETHODIMP Font::DrawGlyphRun(
 	assert(m_dwFactory.Get());
 	assert(m_RenderTarget.Get());
 
+	ComPtr<ID2D1BitmapRenderTarget> bitmap_target(nullptr);
+	m_RenderTarget->CreateCompatibleRenderTarget(&bitmap_target);
+
 	ComPtr<ID2D1PathGeometry> path(nullptr);
 	if(FAILED(m_d2dFactory->CreatePathGeometry(&path)))
 	{
@@ -238,37 +250,80 @@ IFACEMETHODIMP Font::DrawGlyphRun(
 	if(m_State & FONT_RENDERER_STATE_SHADOW)
 	{
 		// render drop shadow
-	}
 
-	if(m_State & FONT_RENDERER_STATE_EDGE)
-	{
-		ComPtr<ID2D1StrokeStyle> stroke_style(nullptr);
-		if(FAILED(m_d2dFactory->CreateStrokeStyle(
-			StrokeStyleProperties(
-				D2D1_CAP_STYLE_ROUND,
-				D2D1_CAP_STYLE_ROUND,
-				D2D1_CAP_STYLE_ROUND,
-				D2D1_LINE_JOIN_MITER,
-				m_EdgeWeight,
-				D2D1_DASH_STYLE_SOLID
-				),
-			nullptr,
-			NULL,
-			&stroke_style
+		ComPtr<ID2D1GeometrySink> shadow_sink(nullptr);
+		if(FAILED(path->Open(&shadow_sink)))
+		{
+			return E_FAIL;
+		}
+
+		vector<DWRITE_GLYPH_OFFSET> offsets(
+			glyphRun->glyphOffsets,
+			glyphRun->glyphOffsets + sizeof(DWRITE_GLYPH_OFFSET) * glyphRun->glyphCount
+			);
+		for(unsigned int i=0; i<offsets.size(); ++i)
+		{
+			offsets[i].advanceOffset	+= m_ShadowOffset.x;
+			offsets[i].ascenderOffset	-= m_ShadowOffset.y;
+		}
+
+		if(FAILED(glyphRun->fontFace->GetGlyphRunOutline(
+			glyphRun->fontEmSize,
+			glyphRun->glyphIndices,
+			glyphRun->glyphAdvances,
+			&offsets.front(),
+			glyphRun->glyphCount,
+			glyphRun->isSideways,
+			glyphRun->bidiLevel % 2,
+			shadow_sink.Get()
+			)))
+		{
+			return E_FAIL;
+		}
+
+		shadow_sink->Close();
+
+		const Matrix3x2F shadow_matrix = Matrix3x2F(
+			1.f, 0.f,
+			0.f, 1.f,
+			baselineOriginX + m_ShadowOffset.x, baselineOriginY + m_ShadowOffset.y
+			);
+
+		ComPtr<ID2D1TransformedGeometry> shadow_geometry(nullptr);
+		if(FAILED(m_d2dFactory->CreateTransformedGeometry(
+			path.Get(),
+			&shadow_matrix,
+			&shadow_geometry
 			)))
 		{
 			return E_FAIL;
 		}
 
 		m_RenderTarget->DrawGeometry(
+			shadow_geometry.Get(),
+			m_ShadowBrush.Get(),
+			10.f + ((m_State & FONT_RENDERER_STATE_EDGE) ? m_EdgeWeight : 0.f),
+			nullptr
+			);
+		m_RenderTarget->FillGeometry(shadow_geometry.Get(), m_ShadowBrush.Get());
+	}
+
+	if(m_State & FONT_RENDERER_STATE_EDGE)
+	{
+		m_RenderTarget->DrawGeometry(
 			geometry.Get(),
 			m_EdgetBrush.Get(),
 			m_EdgeWeight,
-			stroke_style.Get()
+			nullptr
 			);
 	}
 
 	m_RenderTarget->FillGeometry(geometry.Get(), m_TextBrush.Get());
+
+	ComPtr<ID2D1Bitmap> bitmap(nullptr);
+	bitmap_target->GetBitmap(&bitmap);
+
+	m_RenderTarget->DrawBitmap(bitmap.Get());
 
 	return S_OK;
 }
