@@ -91,7 +91,7 @@ ComPtr<IDXGISwapChain> InitSwapChain(
 	sc_desc.BufferDesc.RefreshRate.Denominator	= 1;
 	sc_desc.BufferDesc.Format					= DXGI_FORMAT_B8G8R8A8_UNORM;
 	sc_desc.BufferDesc.ScanlineOrdering			= DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	sc_desc.BufferDesc.Scaling					= DXGI_MODE_SCALING_UNSPECIFIED;
+	sc_desc.BufferDesc.Scaling					= DXGI_MODE_SCALING_STRETCHED;
 	sc_desc.SampleDesc.Count	= 1;
 	sc_desc.SampleDesc.Quality	= 0;
 	sc_desc.BufferUsage		= DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -192,7 +192,7 @@ void GraphicDevice::BeginDraw() const
 	m_RenderTarget->BeginDraw();
 
 	m_RenderTarget->SetTransform(Matrix3x2F::Identity());
-	m_RenderTarget->Clear();
+	m_RenderTarget->Clear(ColorF(0xffffff));
 }
 
 //*****************************************************************************

@@ -67,7 +67,7 @@ SoundBuffer_PCM::SoundBuffer_PCM(const std::wstring& file_name)
 
 	ZeroMemory(&m_Format, sizeof(m_Format));
 
-	vector<char> file_data = ReadFile(file_name);
+	vector<char> file_data;// = ReadFile(file_name);
 	if(file_data.empty())
 	{
 		throw runtime_error("Failed to read a file");
@@ -104,6 +104,6 @@ SoundBuffer_PCM::SoundBuffer_PCM(const std::wstring& file_name)
 		throw runtime_error("Failed to read a file");
 	}
 
-	uint32_t format_size;
+	//uint32_t format_size;
 
 }

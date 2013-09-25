@@ -158,13 +158,7 @@ LRESULT CALLBACK Application::SubclassProcedure(
 
 	switch(message)
 	{
-	case WM_SIZE:
-		break;
-
-	case WM_DISPLAYCHANGE:
-	case WM_TIMER:
-		::InvalidateRect(window_handle, nullptr, false);
-		break;
+	//case WM_INPUT:
 
 	case WM_PAINT:
 		PAINTSTRUCT ps;
@@ -176,6 +170,14 @@ LRESULT CALLBACK Application::SubclassProcedure(
 	case WM_DESTROY:
 		::PostQuitMessage(0);
 		return 1;
+
+	case WM_SIZE:
+		break;
+
+	case WM_DISPLAYCHANGE:
+	case WM_TIMER:
+		::InvalidateRect(window_handle, nullptr, false);
+		break;
 
 	default:
 		return ::DefSubclassProc(window_handle, message, wprm, lprm);

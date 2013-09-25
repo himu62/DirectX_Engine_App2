@@ -21,9 +21,6 @@ using std::vector;
 using namespace D2D1;
 using namespace Microsoft::WRL;
 
-#pragma comment(lib, "d2d1.lib")
-#pragma comment(lib, "dwrite.lib")
-
 #define FONT_STYLE_NORMAL	(char)0
 #define FONT_STYLE_BOLD		(char)1
 #define FONT_STYLE_ITALIC	(char)2

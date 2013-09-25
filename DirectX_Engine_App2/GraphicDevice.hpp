@@ -24,11 +24,6 @@ using std::runtime_error;
 using namespace D2D1;
 using namespace Microsoft::WRL;
 
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "dxguid.lib")
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "d2d1.lib")
-
 /******************************************************************************
 	GraphicDevice
 ******************************************************************************/

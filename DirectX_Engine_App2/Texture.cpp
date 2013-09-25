@@ -38,7 +38,7 @@ ComPtr<ID2D1Bitmap> InitBitmap(
 	assert(render_target.Get());
 	assert(&file_name);
 
-	std::vector<uint8_t> file = ReadFile(file_name);
+	std::vector<uint8_t> file;// = ReadFile(file_name);
 	if(file.empty())
 	{
 		throw runtime_error("Failed to read a file");

@@ -43,7 +43,8 @@
     <LinkIncremental>true</LinkIncremental>
     <ExcludePath>
     </ExcludePath>
-    <LibraryPath>$(DXSDK_DIR)Lib\x86;C:\libwebp\lib;C:\oggvorbis\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(DXSDK_DIR)Lib\x86;$(LibraryPath);C:\libwebp\lib;C:\oggvorbis\lib</LibraryPath>
+    <IncludePath>$(DXSDK_DIR)Include;$(IncludePath);C:\boost;C:\libwebp\include;C:\oggvorbis\include</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -57,12 +58,11 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(DXSDK_DIR)Include;C:\boost;C:\libwebp\include;C:\oggvorbis\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ComCtl32.lib;d3d11.lib;dxguid.lib;dxgi.lib;d2d1.lib;dwrite.lib;xapobase.lib;xapobased.lib;libwebp.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -81,6 +81,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>ComCtl32.lib;d3d11.lib;dxguid.lib;dxgi.lib;d2d1.lib;dwrite.lib;xapobase.lib;libwebp.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

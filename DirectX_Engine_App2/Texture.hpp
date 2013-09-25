@@ -23,8 +23,6 @@ using std::runtime_error;
 using namespace D2D1;
 using namespace Microsoft::WRL;
 
-#pragma comment(lib, "d2d1.lib")
-
 /******************************************************************************
 	TextureKey
 ******************************************************************************/

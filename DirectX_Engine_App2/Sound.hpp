@@ -22,14 +22,6 @@
 
 #include "deleter.hpp"
 
-#pragma comment(lib, "xapobase.lib")
-#ifdef _DEBUG
-#pragma comment(lib, "xapobased.lib")
-#endif
-#pragma comment(lib, "libogg.lib")
-#pragma comment(lib, "libvorbis.lib")
-#pragma comment(lib, "libvorbisfile.lib")
-
 using std::runtime_error;
 using std::vector;
 using namespace Microsoft::WRL;
